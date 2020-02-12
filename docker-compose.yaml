@@ -1,15 +1,30 @@
-vote:
-  image: schoolofdevops/vote:v1
-  ports: 
-    - 5000:5000
-  links:
-    - redis:redis
+version: "3.7"
 
-redis:
-  image: redis:alpine
+volumes:
+  db-data:
 
+services:
+  vote:
+    image: schoolofdevops/vote:latest
+    ports:
+      - 5000:80
+    depends_on:
+      - redis
 
-worker:
-  image: schoolofdevops/worker
-  links:
-    - redis:redis
+  redis:
+    image: redis:alpine
+
+  worker:
+    image: schoolofdevops/worker
+    depends_on:
+      - redis
+
+  db:
+    image: postgres:9.4
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  result:
+    image: initcron/result:latest
+    ports:
+      - 5001:80
